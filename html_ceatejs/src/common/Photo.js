@@ -1,22 +1,22 @@
 var BG_LIST=[{
 		"title":"背景图1",
-		"url":"http://pic.58pic.com/58pic/11/58/37/07P58PICkWV.jpg"
+		"url":"http://aqm-photo.img-cn-hangzhou.aliyuncs.com/user/20170825/599f843b6c9d4.png"
 	},
 	{
 		"title":"背景图2",
-		"url":"http://pic2.16pic.com/00/01/09/16pic_109264_b.jpg"
+		"url":"http://aqm-photo.img-cn-hangzhou.aliyuncs.com/user/20170825/599f845cced53.png"
 	},
 	{
 		"title":"背景图3",
-		"url":"http://pic32.photophoto.cn/20140928/0007020132557181_b.jpg"
+		"url":"http://aqm-photo.img-cn-hangzhou.aliyuncs.com/user/20170825/599f846d063a5.png"
 	},
 	{
 		"title":"背景图4",
-		"url":"http://pic104.nipic.com/file/20160721/7548603_102829450000_2.jpg"
+		"url":"http://aqm-photo.img-cn-hangzhou.aliyuncs.com/user/20170825/599f8477cfba9.png"
 	},
 	{
 		"title":"背景图5",
-		"url":"http://pic31.photophoto.cn/20140428/0008020287793257_b.jpg"
+		"url":"http://aqm-photo.img-cn-hangzhou.aliyuncs.com/user/20170825/599f84821ac5e.png"
 	}];
 
 

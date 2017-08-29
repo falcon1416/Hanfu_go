@@ -1,91 +1,28 @@
 <template>
 	<div>
 		<Row>
-			<Col span="20" >
-				<canvas ref="myCanvas" :width="canvas.width" :height="canvas.height" style="background:black"></canvas>
+			<Col span="4">
+				<Tree :data="info" v-on:on-select-change="onTreeSelect"></Tree>
+			</Col>
+			<Col span="16" >
+				<Row>
+					<Col>
+						<TOOL v-on:onSavePic="onSavePic" v-on:onAddImage="onAddImage" v-on:onAddText="onAddText"></TOOL>
+					</Col>
+				</Row>
+				<br />
+				<Row>
+					<Col style="text-align:center;background: #777">
+						<canvas ref="myCanvas" :width="info[0].property.width" :height="info[0].property.height" style="background:black;margin:0 auto;"></canvas>
+					</Col>
+				</Row>
 			</Col>
 			<Col span="4">
-				<Row>
-					<Col>
-						<span>参赛证大小</span>
-					</Col>
-				</Row>
-				<Row>
-					<Col>
-		                <Select @on-change="onChangeCanvasSize" v-model="canvas.select_value" size="small">
-		                    <Option value="300X400" key="">300X400</Option>
-		                    <Option value="400X600" key="">400X600</Option>
-		                </Select>
-		            </Col>
-				</Row>
-				<br/>
+				<BGITEM v-show="this.tree_select_key=='bg'" :info="info[0].property" v-on:onRefreshBG="onRefreshBG()"></BGITEM>
+				<TYPEITEM v-on:onRefreshType="onRefreshType()" v-if="this.tree_select_key=='type'" :info="info[0].children[0].property"></TYPEITEM>
 
-				<Row>
-					<Col>
-						<span>背景图片</span>
-					</Col>
-				</Row>
-				<Row>
-					<Col>
-		                <Select @on-change="onChangeBG" v-model="bg.url" size="small">
-		                    <Option v-for="item,index in bg.photo_list" :value="item.url" :key="item.url">{{item.title}}</Option>
-		                </Select>
-		            </Col>
-				</Row>
-				<br/>
-
-				<Row>
-					<Col>
-						<span>赛事标题</span>
-					</Col>
-				</Row>
-				<Row>
-					<Col>
-						<span>{{league.x}},{{league.y}}</span>
-					</Col>
-				</Row>
-				<Row>
-					<Col span="8">
-						<span>标题长度</span>
-					</Col>
-					<Col span="8">
-						<Input-number @on-change="onChangeLeague" :max="league.title.length" :min="4" v-model="league.title_length" size="small"></Input-number>
-					</Col>
-				</Row>
-				<Row>
-					<Col span="8">
-						<span>行高</span>
-					</Col>
-					<Col span="8">
-						<Input-number @on-change="onChangeLeague" :max="100" :min="4" v-model="league.line_height" size="small"></Input-number>
-					</Col>
-				</Row>
-				<Row>
-					<Col span="8">
-						<span>每行文字</span>
-					</Col>
-					<Col span="8">
-						<Input-number @on-change="onChangeLeague" :max="40" :min="4" v-model="league.line_number" size="small"></Input-number>
-					</Col>
-				</Row>
-				<Row>
-					<Col span="8">
-						<span>大小</span>
-					</Col>
-					<Col span="8">
-						<Input-number @on-change="onChangeLeague" :max="72" :min="10" v-model="league.size" size="small"></Input-number>
-					</Col>
-				</Row>
-				<Row>
-					<Col span="8">
-						<span>字体</span>
-					</Col>
-					<Col span="8">
-		                <Select @on-change="onChangeLeague" v-model="league.font_name" size="small">
-		                    <Option v-for="item,index in font_list" :value="item.value" :key="item.value">{{item.title}}</Option>
-		                </Select>
-		            </Col>
-				</Row>
+				<IMAGEITEM v-on:onRefreshImage="onRefreshImage()" v-if="isShowItem('image')" :info="getSelectProperty()"></IMAGEITEM>
+				<TEXTITEM v-on:onRefresh="onRefreshText()" v-if="isShowItem('text')" :info="getSelectProperty()"></TEXTITEM>
 			</Col>
 		</Row>
 	</div>
@@ -94,196 +31,305 @@
 
 <script>
 import createjs from 'createjs-cmd';
-import {BG_LIST} from '../common/Photo.js'
-import {FONT_LIST} from '../common/Font.js'
+
+import {BG_Property,TYPE_Property,TEXT_Property,IMAGE_Property} from '../common/Property.js'
+
+import BGITEM from '../components/BG_Property'
+import TYPEITEM from '../components/TYPE_Property'
+import IMAGEITEM from '../components/IMAGE_Property'
+import TEXTITEM from '../components/TEXT_Property'
+
+import TOOL from '../components/Tool'
 
 export default {
 	data() {
 		return {
-			//画布容器
 			canvas:{
-				stage:null,
-				width:300,
-				height:400,
-
-				select_value:"300X400",
+				Stage:null,
 				update:false,
 			},
+			
+			tree_select_key:"bg",
 
-			//背景图
-			bg:{
-				bg_bitmap:null,
-				url:BG_LIST[0].url,
-
-				//背景图资料
-				photo_list:BG_LIST,
-			},
-
-			//标题
-			league:{
-				canvas_text:null,
-
-				title:'这是一个爱球迷测试标题长度的文字内容这是一个爱球迷测试标题长度的文字内容这是一个爱球迷测试标题长度的文字内容这是一个爱球迷测试标题长度的文字内容这是一个爱球迷测试标题长度的文字内容',
-				title_length:10,
-				size:18,
-				line_height:20,
-				line_number:10,
-
-				color:'#000',
-				font_name:FONT_LIST[0].value,
-
-				x:100,
-				y:100,
-			},
-
-
-
-			//字体数据
-			font_list:FONT_LIST
-	    }
+			info:[{
+				expand: true,
+				title:"背景",
+				key:"bg",
+				disableCheckbox: true,
+				selected:true,
+				bitmap:null,
+				property:BG_Property,
+				children:[{
+					title:"证件类型",
+					key:"type",
+					canvas_text:null,
+					property:TYPE_Property,
+				}],
+			}],
+		}
   	},
+  	components: {
+        BGITEM,
+        TYPEITEM,
+        IMAGEITEM,
+        TEXTITEM,
+
+        TOOL,
+    },
 	methods: {
-		//修改画布大小
-		onChangeCanvasSize:function(){
-			var value=this.canvas.select_value;
-			var a=value.split("X");
-			this.canvas.width=a[0];
-			this.canvas.height=a[1];
+		onTreeSelect:function(nodes){
+			this.tree_select_key=nodes[0].key;
 		},
-		//修改背景图
-		onChangeBG:function(){
-			setBGImage(this);
+		onRefreshBG:function(){
+			setCanvasBG(this);
 		},
-		//修改赛事标题的信息
-		onChangeLeague:function(){
-			setLeagueInfo(this);
+		onRefreshType:function(){
+			setCertType(this);
 		},
+		onRefreshImage:function(){
+			refreshImage(this,this.tree_select_key);
+		},
+		onRefreshText:function(){
+			refreshText(this,this.tree_select_key);
+		},
+		isShowItem:function(type){
+			var index=querySelectNode(this,this.tree_select_key);
+			if(index==-1) return false;
+
+			var property=this.info[0].children[index].property;
+			
+			if(property.type==type){
+				return true;
+			}else{
+				return false;
+			}
+		},
+		getSelectProperty:function(){
+			var index=querySelectNode(this,this.tree_select_key);
+			if(index==-1) return null;
+
+			var property=this.info[0].children[index].property;
+			return property;
+		},
+		//添加图片
+		onAddImage:function(data){
+			var property=IMAGE_Property();
+			property.url=data.url;
+			var item={
+				title:"自定义图片",
+				key:data["key"],
+				bitmap:null,
+				property:property,
+			}
+			this.info[0].children.push(item);
+			refreshImage(this,data["key"]);
+		},
+		onAddText:function(data){
+			var property=TEXT_Property();
+			property.text=data.text;
+			var item={
+				title:"自定义文字",
+				key:data["key"],
+				canvas_text:null,
+				property:property,
+			}
+			
+			item.canvas_text=setText(this,item.canvas_text,property,data["key"]);
+			this.info[0].children.push(item);
+		},
+		onSavePic:function(){
+			var data=this.canvas.stage.toDataURL();
+			console.log(data)
+		}
 	},
 	mounted() {
-		initView(this)
+		initView(this);
+
+		setCanvasBG(this);
+
+		var self=this;
+		setTimeout(function(){
+			setCertType(self);
+		},1.0);  
+		
 	}
 }
 
-//设置背景图片
-function setBGImage(self){
+
+
+function initView(self){
+	var canvas = self.$refs.myCanvas
+	self.canvas.stage = new  createjs.Stage(canvas);
+	self.canvas.stage.autoClear = false;
+	//移动
+	createjs.Touch.enable(self.canvas.stage);
+	self.canvas.stage.enableMouseOver(10);
+	self.canvas.stage.mouseMoveOutside = true;
+	//监听移动
+	createjs.Ticker.addEventListener("tick", function(event){
+		if (self.canvas.update) {
+			self.canvas.update = false; // only update once
+			self.canvas.stage.update(event);
+		}
+	});
+
+}
+
+//刷新背景图
+function setCanvasBG(self){
 	var image=new Image();
-	image.src=self.bg.url;
+	image.src=self.info[0].property.url;
 	image.onload=function(e){
-		if(self.bg.bg_bitmap==null){
+		if(self.info[0].bitmap==null){
 			//第一次绘制
-			self.bg.bg_bitmap=new createjs.Bitmap(e.target);
-			self.canvas_stage.addChildAt(self.bg.bg_bitmap,0);
+			self.info[0].bitmap=new createjs.Bitmap(e.target);
+			self.canvas.stage.addChild(self.info[0].bitmap);
 		}else{
-			self.bg.bg_bitmap.image=e.target;
+			self.info[0].bitmap.image=e.target;
 		}
 		self.canvas.update = true;
 	};
 }
 
-//设置赛事标题
-function setLeague(self){
-	var title=self.league.title.substr(0,self.league.title_length);
+//刷新背景图
+function setImage(self,index){
+	var image=new Image();
+	image.src=self.info[0].children[index].property.url;
+	var key=self.info[0].children[index].key;
+	image.onload=function(e){
+		if(self.info[0].children[index].bitmap==null){
+			//第一次绘制
+			self.info[0].children[index].bitmap=new createjs.Bitmap(e.target);
+			self.canvas.stage.addChild(self.info[0].children[index].bitmap);
 
-	if(self.league.canvas_text==null){
-		var font=self.league.size+"px "+self.league.font_name;
-		self.league.canvas_text= new createjs.Text(title, font, self.league.color);
-		self.league.canvas_text.textAlign = "center";
-		self.league.canvas_text.textBaseline = "alphabetic";
-		self.league.canvas_text.lineHeight=self.league.line_height;
-		self.league.canvas_text.x = self.league.x;
-		self.league.canvas_text.y = self.league.y;
-		self.league.canvas_text.scale = self.league.canvas_text.originalScale = Math.random() * 0.4 + 0.6;
+			var bitmap=self.info[0].children[index].bitmap;
+			bitmap.tag=key;
+			bitmap.on("click", function (evt) {
+				self.tree_select_key=this.tag;
+			});
 
-		self.canvas_stage.addChildAt(self.league.canvas_text,0);
+			bitmap.on("mousedown", function (evt) {
+				this.parent.addChild(this);
+				this.offset = {x: this.x - evt.stageX, y: this.y - evt.stageY};
+			});
 
-		//为啥没有效果？？？？
-		// var hitArea = new createjs.Shape();
-		// hitArea.graphics.beginFill("#FFF").drawEllipse(-11, -14, 24, 18);
-		// // position hitArea relative to the internal coordinate system of the target bitmap instances:
-		// hitArea.x = self.league.canvas_text.width / 2;
-		// hitArea.y = self.league.canvas_text.height / 2;
-		// self.league.canvas_text.hitArea = hitArea;
+			// the pressmove event is dispatched when the mouse moves after a mousedown on the target until the mouse is released.
+			bitmap.on("pressmove", function (evt) {
+				this.x = parseInt(evt.stageX) + parseInt(this.offset.x);
+				this.y = parseInt(evt.stageY) + parseInt(this.offset.y);
+				// indicate that the stage should be updated on the next tick:
+				self.canvas.update = true;
+
+				self.info[0].children[index].property.x=this.x;
+				self.info[0].children[index].property.y=this.y;
+			});
+
+		}else{
+			self.info[0].children[index].bitmap.image=e.target;
+		}
 		
+		//点击区域
+		var hitArea = new createjs.Shape;   
+		hitArea.graphics.beginFill("#FFF").drawEllipse(0, 0, image.width, image.height);
+		hitArea.x = 0;
+		hitArea.y = 0;  
 
-		self.league.canvas_text.on("mousedown", function (evt) {
+
+		self.info[0].children[index].bitmap.hitArea  = hitArea;
+
+		self.info[0].children[index].bitmap.x=self.info[0].children[index].property.x;
+		self.info[0].children[index].bitmap.y=self.info[0].children[index].property.y;
+
+		var scale=self.info[0].children[index].property.scale;
+		scale=scale/10.0;
+		self.info[0].children[index].bitmap.scaleX=scale;
+		self.info[0].children[index].bitmap.scaleY=scale;
+		self.canvas.update = true;
+	};
+}
+
+//设置
+function setText(self,canvas_text,property,key){
+	var font=property.font_size+"px "+property.font_name;
+	if(canvas_text==null){
+		canvas_text= new createjs.Text();
+		var index=self.canvas.stage.getChildIndex()+1;
+		self.canvas.stage.addChildAt(canvas_text,1);
+
+		canvas_text.on("click", function (evt) {
+			self.tree_select_key=this.tag;
+		});
+
+		canvas_text.on("mousedown", function (evt) {
 			this.parent.addChild(this);
 			this.offset = {x: this.x - evt.stageX, y: this.y - evt.stageY};
 		});
 
 		// the pressmove event is dispatched when the mouse moves after a mousedown on the target until the mouse is released.
-		self.league.canvas_text.on("pressmove", function (evt) {
-			this.x = evt.stageX + this.offset.x;
-			this.y = evt.stageY + this.offset.y;
+		canvas_text.on("pressmove", function (evt) {
+			this.x = parseInt(evt.stageX) + parseInt(this.offset.x);
+			this.y = parseInt(evt.stageY) + parseInt(this.offset.y);
 			// indicate that the stage should be updated on the next tick:
 			self.canvas.update = true;
 
-			self.league.x=this.x;
-			self.league.y=this.y;
+			property.x=this.x;
+			property.y=this.y;
 		});
-
-		self.league.canvas_text.on("rollover", function (evt) {
-			this.scale = this.originalScale * 1.2;
-			self.canvas.update = true;
-		});
-
-		self.league.canvas_text.on("rollout", function (evt) {
-			this.scale = this.originalScale;
-			self.canvas.update = true;
-		});
-
-	}
-		
-	self.canvas.update = true;
-}
-
-//设置赛事标题长度
-function setLeagueInfo(self){
-	var title=self.league.title.substr(0,self.league.title_length);
-	var number=self.league.line_number;
-	var title_list=[];
-	while(title.length>number){
-		title_list.push(title.substr(0,number));
-		title=title.substr(number)
-	}
-	title_list.push(title);
-	title="";
-	for (var i = 0; i < title_list.length; i++) {
-		title=title+title_list[i]+"\n"
 	}
 
+	canvas_text.tag=key;
+	canvas_text.text=property.text;
+	canvas_text.font=font;
+	canvas_text.color=property.color;
+	canvas_text.lineWidth=370;
 
-	self.league.canvas_text.text=title;
-
-	var font=self.league.size+"px "+self.league.font_name;
-	self.league.canvas_text.font=font;
-
-	self.league.canvas_text.lineHeight=self.league.line_height;
+	canvas_text.textAlign = "center";
+	canvas_text.textBaseline = "alphabetic";
+	canvas_text.lineHeight=property.line_height;
+	canvas_text.x = property.x;
+	canvas_text.y = property.y;
 
 	self.canvas.update = true;
-}
-
-
-function initView(self){
-	var canvas = self.$refs.myCanvas
-	self.canvas_stage = new  createjs.Stage(canvas);
-	self.canvas_stage.autoClear = false;
-	//移动
-	createjs.Touch.enable(self.canvas_stage);
-	self.canvas_stage.enableMouseOver(10);
-	self.canvas_stage.mouseMoveOutside = true;
-	//监听移动
-	createjs.Ticker.addEventListener("tick", function(event){
-		if (self.canvas.update) {
-			self.canvas.update = false; // only update once
-			self.canvas_stage.update(event);
-		}
-	});
 	
-	//绘制默认背景图
-	setBGImage(self);
-	//绘制默认的标题
-	setLeague(self);
+	return canvas_text;
+}
 
+//设置证件类型
+function setCertType(self){
+	var canvas_text=self.info[0].children[0].canvas_text;
+	var property=self.info[0].children[0].property;
+	var key=self.info[0].children[0].key;
+	self.info[0].children[0].canvas_text=setText(self,canvas_text,property,key);
+}
+
+//设置image
+function refreshImage(self,key){
+	var index=querySelectNode(self,key);
+	setImage(self,index);
+}
+
+//设置image
+function refreshText(self,key){
+	var index=querySelectNode(self,key);
+	var canvas_text=self.info[0].children[index].canvas_text;
+	var property=self.info[0].children[index].property;
+	var key=self.info[0].children[index].key;
+	setText(self,canvas_text,property,key);
+}
+
+//查找选择的节点index
+function querySelectNode(self,key){
+	var select_index=-1;
+	if(!self.info) return select_index;
+
+	for(var i=0; i< self.info[0].children.length;i++){
+		if(self.info[0].children[i].key==key){
+			select_index=i;
+			break;
+		}
+	}
+
+	return select_index;
 }
 
 </script>
