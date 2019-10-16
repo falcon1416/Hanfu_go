@@ -29,6 +29,7 @@ func parseList(list []Shop)[]gin.H{
 		data:=gin.H{
 			"id":item.Id,
 			"image":item.ImageUrl,
+			"name":item.Name,
 			"url":item.ShopUrl,
 		}
 		out_list = append(out_list, data)

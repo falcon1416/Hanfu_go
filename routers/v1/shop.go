@@ -4,7 +4,6 @@ import (
 	_"fmt"
 	"github.com/Hanfu/apis/v1/shop"
 	"github.com/gin-gonic/gin"
-	
 )
 
 // 注册路由
