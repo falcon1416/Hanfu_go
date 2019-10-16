@@ -9,6 +9,6 @@ import (
 
 // 注册路由
 func RegisterShopRouter(r *gin.RouterGroup) {
-	// 注册
 	r.POST("/queryTop", shop.QueryTop)
+	r.POST("/query", shop.Query)
 }
