@@ -10,5 +10,7 @@ func RegisterRouter(router *gin.RouterGroup) {
 	{
 		// 用户路由
 		RegisterShopRouter(v1.Group("/shop"))
+		RegisterQQRouter(v1.Group("/qq"))
+		RegisterUserRouter(v1.Group("/user"))
 	}
 }
