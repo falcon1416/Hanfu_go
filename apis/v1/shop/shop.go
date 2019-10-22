@@ -110,3 +110,68 @@ func Add(c *gin.Context) {
 	})
 	return
 }
+
+//编辑
+func Edit(c *gin.Context) {
+	type JSONData struct {
+		Id int `form:"id" binding:"required"`
+		Logo string `form:"logo" binding:"required"`
+		Name string `form:"name" binding:"required"`
+		Tag string `form:"tag" binding:"required"`
+		Url string `form:"url" binding:"required"`
+		Type string `form:"type" binding:"required"`
+		Share string `form:"share" binding:"required"`
+		Intro string `form:"intro" binding:"required"`
+		Uid int `form:"uid" binding:"required"`
+	}
+	var data JSONData
+	if err := c.ShouldBind(&data); err != nil {
+		utils.RES(c, utils.INVALID_PARAMS, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	saveData :=DB.Shop{
+		Id:data.Id,
+		Name:data.Name,
+		Logo:data.Logo,
+		Tag:data.Tag,
+		Url:data.Url,
+		Type:data.Type,
+		Share:data.Share,
+		Intro:data.Intro,
+		CreateUid:data.Uid,
+	}
+	err :=DB.Update(saveData);
+	if err != nil{
+		utils.RES(c, utils.ERROR_DATABASE_ADD, gin.H{})
+		return 
+	}
+
+	utils.RES(c, utils.SUCCESS,  gin.H{
+		
+	})
+	return
+}
+
+func Detail(c *gin.Context) {
+	type JSONData struct {
+		Id int `form:"id" binding:"required"`
+	}
+	var data JSONData
+	if err := c.ShouldBind(&data); err != nil {
+		utils.RES(c, utils.INVALID_PARAMS, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	info:=DB.Detail(data.Id)
+	
+
+	utils.RES(c, utils.SUCCESS,  gin.H{
+		"info":info,
+	})
+	return
+}

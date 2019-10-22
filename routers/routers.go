@@ -36,7 +36,7 @@ func setUpRouter(router *gin.Engine) {
 
 	// 设置静态文件处理
 	path,_ := os.Getwd()
-	path=path+"/web/"
+	path=path+"/public/"
 	fmt.Println(path)
-	router.StaticFS("/web",  http.Dir(path))
+	router.StaticFS("/public",  http.Dir(path))
 }

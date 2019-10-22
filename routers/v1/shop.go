@@ -14,4 +14,6 @@ func RegisterShopRouter(r *gin.RouterGroup) {
 	r.POST("/query-my", shop.QueryMy)
 
 	r.POST("/add", shop.Add)
+	r.POST("/edit", shop.Edit)
+	r.POST("/detail", shop.Detail)
 }

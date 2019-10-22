@@ -29,10 +29,8 @@ func (u *Shop) Save() error {
 	return database.DB.Create(u).Error
 }
 
-func parseList(list []Shop)[]gin.H{
-	var out_list []gin.H
-	for _,item  := range list {
-		type_list:=strings.Split(item.Type,",")
+func parseItem(item Shop)gin.H{
+	type_list:=strings.Split(item.Type,",")
 		var type_name string
 		for _,t := range type_list{
 			value,_ :=  strconv.Atoi(t)
@@ -57,6 +55,13 @@ func parseList(list []Shop)[]gin.H{
 			"status_name":status_name,
 			"type_name":type_name,
 		}
+		return data;
+}
+
+func parseList(list []Shop)[]gin.H{
+	var out_list []gin.H
+	for _,item  := range list {
+		data:=parseItem(item)
 		out_list = append(out_list, data)
 	}
 	return out_list
@@ -91,4 +96,15 @@ func QueryMyCount(uid int) int{
 	var count int
 	database.DB.Table("shop").Where("create_uid = ?",uid).Count(&count)
 	return count
+}
+
+func Detail(id int) gin.H{
+	var s Shop
+	database.DB.Table("shop").Where("id = ?",id).First(&s)
+	return parseItem(s)
+}
+
+func Update(data Shop) error {
+	data.CreateTime=time.Now()
+	return database.DB.Save(data).Error
 }
