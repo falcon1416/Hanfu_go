@@ -88,7 +88,7 @@ func QueryCount() int{
 
 func QueryMy(page,limit,uid int) []gin.H{
 	var list []Shop
-	database.DB.Table("shop").Where("create_uid = ?",uid).Offset((page-1)*limit).Limit(limit).Find(&list)
+	database.DB.Table("shop").Where("create_uid = ?",uid).Order("create_time desc").Offset((page-1)*limit).Limit(limit).Find(&list)
 	return parseList(list)
 }
 
@@ -107,4 +107,10 @@ func Detail(id int) gin.H{
 func Update(data Shop) error {
 	data.CreateTime=time.Now()
 	return database.DB.Save(data).Error
+}
+
+func QueryMyCountByStatus(uid,status int) int{
+	var count int
+	database.DB.Table("shop").Where("create_uid = ? and status=?",uid,status).Count(&count)
+	return count
 }

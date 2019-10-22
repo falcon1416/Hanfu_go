@@ -5,6 +5,7 @@ import (
 	"github.com/Hanfu/utils"
 	"github.com/gin-gonic/gin"
 	DB"github.com/Hanfu/models/user"
+	ShopDB"github.com/Hanfu/models/shop"
 
 	myjwt "github.com/Hanfu/middleware/jwt"
 	jwtgo "github.com/dgrijalva/jwt-go"
@@ -56,6 +57,32 @@ func Register(c *gin.Context) {
 
 	utils.RES(c, utils.SUCCESS,  gin.H{
 		"info":  info,
+	})
+}
+
+func MyInfo(c *gin.Context) {
+	type JSONData struct {
+		Uid int `form:"uid" binding:"required"`
+	}
+	var data JSONData
+	if err := c.ShouldBind(&data); err != nil {
+		utils.RES(c, utils.INVALID_PARAMS, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	wait_count:=ShopDB.QueryMyCountByStatus(data.Uid,0)
+	pass_count:=ShopDB.QueryMyCountByStatus(data.Uid,1)
+	shopinfo :=gin.H{
+		"wait_count":wait_count,
+		"pass_count":pass_count,
+	}
+
+	utils.RES(c, utils.SUCCESS,  gin.H{
+		"info":  gin.H{
+			"shop":shopinfo,
+		},
 	})
 }
 
