@@ -40,3 +40,73 @@ func QueryTop(c *gin.Context) {
 	})
 	return
 }
+
+//查询我的
+func QueryMy(c *gin.Context) {
+	type JSONData struct {
+		Uid int `form:"uid" binding:"required"`
+		Page int `form:"page" binding:"required"`
+		Limit int `form:"limit" binding:"required"`
+	}
+	var data JSONData
+	if err := c.ShouldBind(&data); err != nil {
+		utils.RES(c, utils.INVALID_PARAMS, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	count:=DB.QueryMyCount(data.Uid);
+	list:=DB.QueryMy(data.Page,data.Limit,data.Uid)
+	
+	info:=gin.H{
+		"total":count,
+		"list":list,
+	}
+	utils.RES(c, utils.SUCCESS,  gin.H{
+		"info":info,
+	})
+	return
+}
+
+//添加
+func Add(c *gin.Context) {
+	type JSONData struct {
+		Logo string `form:"logo" binding:"required"`
+		Name string `form:"name" binding:"required"`
+		Tag string `form:"tag" binding:"required"`
+		Url string `form:"url" binding:"required"`
+		Type string `form:"type" binding:"required"`
+		Share string `form:"share" binding:"required"`
+		Intro string `form:"intro" binding:"required"`
+		Uid int `form:"uid" binding:"required"`
+	}
+	var data JSONData
+	if err := c.ShouldBind(&data); err != nil {
+		utils.RES(c, utils.INVALID_PARAMS, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	saveData :=DB.Shop{
+		Name:data.Name,
+		Logo:data.Logo,
+		Tag:data.Tag,
+		Url:data.Url,
+		Type:data.Type,
+		Share:data.Share,
+		Intro:data.Intro,
+		CreateUid:data.Uid,
+	}
+	err :=saveData.Save();
+	if err != nil{
+		utils.RES(c, utils.ERROR_DATABASE_ADD, gin.H{})
+		return 
+	}
+
+	utils.RES(c, utils.SUCCESS,  gin.H{
+		
+	})
+	return
+}

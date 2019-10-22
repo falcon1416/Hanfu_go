@@ -51,6 +51,7 @@ func Register(c *gin.Context) {
 	//组装输出的信息
 	info :=gin.H{
 		"token":token,
+		"uid":uInfo.Id,
 	}
 
 	utils.RES(c, utils.SUCCESS,  gin.H{

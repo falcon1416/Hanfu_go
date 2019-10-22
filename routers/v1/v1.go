@@ -12,5 +12,6 @@ func RegisterRouter(router *gin.RouterGroup) {
 		RegisterShopRouter(v1.Group("/shop"))
 		RegisterQQRouter(v1.Group("/qq"))
 		RegisterUserRouter(v1.Group("/user"))
+		RegisterFileRouter(v1.Group("/file"))
 	}
 }
