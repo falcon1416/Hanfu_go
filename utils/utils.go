@@ -1,6 +1,7 @@
 package utils
 
 import (
+	_"fmt"
 	"github.com/gin-gonic/gin"
 )
 

@@ -58,7 +58,7 @@ func QueryMy(c *gin.Context) {
 
 	count:=DB.QueryMyCount(data.Uid);
 	list:=DB.QueryMy(data.Page,data.Limit,data.Uid)
-	
+
 	info:=gin.H{
 		"total":count,
 		"list":list,
@@ -75,7 +75,6 @@ func Add(c *gin.Context) {
 		Logo string `form:"logo" binding:"required"`
 		Name string `form:"name" binding:"required"`
 		Tag string `form:"tag" binding:"required"`
-		Url string `form:"url" binding:"required"`
 		Type string `form:"type" binding:"required"`
 		Share string `form:"share" binding:"required"`
 		Intro string `form:"intro" binding:"required"`
@@ -93,7 +92,6 @@ func Add(c *gin.Context) {
 		Name:data.Name,
 		Logo:data.Logo,
 		Tag:data.Tag,
-		Url:data.Url,
 		Type:data.Type,
 		Share:data.Share,
 		Intro:data.Intro,
@@ -118,7 +116,6 @@ func Edit(c *gin.Context) {
 		Logo string `form:"logo" binding:"required"`
 		Name string `form:"name" binding:"required"`
 		Tag string `form:"tag" binding:"required"`
-		Url string `form:"url" binding:"required"`
 		Type string `form:"type" binding:"required"`
 		Share string `form:"share" binding:"required"`
 		Intro string `form:"intro" binding:"required"`
@@ -137,7 +134,6 @@ func Edit(c *gin.Context) {
 		Name:data.Name,
 		Logo:data.Logo,
 		Tag:data.Tag,
-		Url:data.Url,
 		Type:data.Type,
 		Share:data.Share,
 		Intro:data.Intro,

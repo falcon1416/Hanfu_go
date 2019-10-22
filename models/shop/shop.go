@@ -14,7 +14,6 @@ type Shop struct {
 	Logo string `json:"logo"`
 	Name string `json:"name"`
 	Tag string `json:"tag"`
-	Url string `json:"url"`
 	Type string `json:"type"`
 	Share string `json:"share"`
 	Intro string `json:"intro"`
@@ -48,7 +47,6 @@ func parseItem(item Shop)gin.H{
 			"logo":item.Logo,
 			"intro":item.Intro,
 			"tag":item.Tag,
-			"url":item.Url,
 			"share":item.Share,
 			"type":item.Type,
 			"status":item.Status,
