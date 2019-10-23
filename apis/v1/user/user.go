@@ -3,6 +3,7 @@ package user
 import (
 	"time"
 	"Hanfu/utils"
+	"strconv"
 	"github.com/gin-gonic/gin"
 	DB"Hanfu/models/user"
 	ShopDB"Hanfu/models/shop"
@@ -105,11 +106,26 @@ func MyInfo(c *gin.Context) {
 		return
 	}
 
-	wait_count:=ShopDB.QueryMyCountByStatus(data.Uid,0)
-	pass_count:=ShopDB.QueryMyCountByStatus(data.Uid,1)
+	//检查是否是admin用户
+	var uInfo DB.User
+	all_wait_count:=0
+	uInfo=DB.QueryByUID(data.Uid)
+	if uInfo.IsAdmin==1{
+		//admin用户
+		var wheres []string
+		all_wait_count=ShopDB.QueryByWhereCount(append(wheres,"status = 0"))
+	}
+
+	//查询我发的商品
+	var wheres []string
+	wheres = append(wheres, "create_uid = '"+strconv.Itoa(data.Uid)+"'")
+
+	wait_count:=ShopDB.QueryByWhereCount(append(wheres, "status = 0"))
+	pass_count:=ShopDB.QueryByWhereCount(append(wheres, "status = 1"))
 	shopinfo :=gin.H{
 		"wait_count":wait_count,
 		"pass_count":pass_count,
+		"all_wait_count":all_wait_count,
 	}
 
 	utils.RES(c, utils.SUCCESS,  gin.H{

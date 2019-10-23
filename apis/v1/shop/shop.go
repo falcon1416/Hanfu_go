@@ -2,6 +2,7 @@ package shop
 
 import (
 	"Hanfu/utils"
+	"strconv"
 	"github.com/gin-gonic/gin"
 	DB"Hanfu/models/shop"
 )
@@ -34,11 +35,11 @@ func Query(c *gin.Context) {
 
 //查询广告
 func QueryTop(c *gin.Context) {
-	list:=DB.QueryTop()
-	utils.RES(c, utils.SUCCESS,  gin.H{
-		"info": gin.H{"list":list},
-	})
-	return
+	// list:=DB.QueryTop()
+	// utils.RES(c, utils.SUCCESS,  gin.H{
+	// 	"info": gin.H{"list":list},
+	// })
+	// return
 }
 
 //查询我的
@@ -56,8 +57,11 @@ func QueryMy(c *gin.Context) {
 		return
 	}
 
-	count:=DB.QueryMyCount(data.Uid);
-	list:=DB.QueryMy(data.Page,data.Limit,data.Uid)
+	var wheres []string
+	wheres = append(wheres, "create_uid = '"+strconv.Itoa(data.Uid)+"'")
+
+	count:=DB.QueryByWhereCount(wheres);
+	list:=DB.QueryByWhere(data.Page,data.Limit,wheres)
 
 	info:=gin.H{
 		"total":count,

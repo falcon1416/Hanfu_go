@@ -21,6 +21,12 @@ func QueryByOpenid(openid string) User{
 	return u
 }
 
+func QueryByUID(uid int) User{
+	var u User
+	database.DB.Where("id = ?", uid).First(&u)
+	return u
+}
+
 func (u *User) Save() error {
 	u.CreateTime=time.Now()
 	return database.DB.Create(u).Error

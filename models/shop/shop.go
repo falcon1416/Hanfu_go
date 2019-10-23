@@ -5,6 +5,7 @@ import (
 	"strings"
 	"strconv"
 	"Hanfu/database"
+	"github.com/jinzhu/gorm"
 	"github.com/gin-gonic/gin"
 	SHOP"Hanfu/common/shop"
 )
@@ -65,12 +66,6 @@ func parseList(list []Shop)[]gin.H{
 	return out_list
 }
 
-func QueryTop() []gin.H{
-	var list []Shop
-	database.DB.Table("shop").Where("is_top > 0").Order("is_top desc").Find(&list)
-
-	return parseList(list)
-}
 
 func Query(page,limit int) []gin.H{
 	var list []Shop
@@ -84,15 +79,27 @@ func QueryCount() int{
 	return count
 }
 
-func QueryMy(page,limit,uid int) []gin.H{
+func QueryByWhere(page,limit int,where []string) []gin.H{
+	var table *gorm.DB
+	table=database.DB.Table("shop")
+	for _,w  := range where {
+		table=table.Where(w)
+	}
+
 	var list []Shop
-	database.DB.Table("shop").Where("create_uid = ?",uid).Order("create_time desc").Offset((page-1)*limit).Limit(limit).Find(&list)
+	table.Order("create_time desc").Offset((page-1)*limit).Limit(limit).Find(&list)
 	return parseList(list)
 }
 
-func QueryMyCount(uid int) int{
+func QueryByWhereCount(where []string) int{
+	var table *gorm.DB
+	table=database.DB.Table("shop")
+	for _,w  := range where {
+		table=table.Where(w)
+	}
+	
 	var count int
-	database.DB.Table("shop").Where("create_uid = ?",uid).Count(&count)
+	table.Count(&count)
 	return count
 }
 
@@ -105,10 +112,4 @@ func Detail(id int) gin.H{
 func Update(data Shop) error {
 	data.CreateTime=time.Now()
 	return database.DB.Save(data).Error
-}
-
-func QueryMyCountByStatus(uid,status int) int{
-	var count int
-	database.DB.Table("shop").Where("create_uid = ? and status=?",uid,status).Count(&count)
-	return count
 }
