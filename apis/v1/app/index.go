@@ -1,4 +1,4 @@
-package qq
+package app
 
 import (
 	"fmt"

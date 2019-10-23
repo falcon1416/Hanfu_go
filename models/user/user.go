@@ -11,6 +11,7 @@ type User struct {
 	Avatar string `json:"avatar"`
 	Sex int `json:"sex"`
 	Openid string `json:"openid"`
+	IsAdmin int `json:"is_admin",gorm:"default:0"`
 	CreateTime time.Time `json:"create_time"`
 }
 

@@ -60,6 +60,39 @@ func Register(c *gin.Context) {
 	})
 }
 
+func Login(c *gin.Context) {
+	type JSONData struct {
+		Openid string `form:"openid" binding:"required"`
+	}
+	var data JSONData
+	if err := c.ShouldBind(&data); err != nil {
+		utils.RES(c, utils.INVALID_PARAMS, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	//查询是否注册过
+	var uInfo DB.User
+	uInfo=DB.QueryByOpenid(data.Openid)
+	if uInfo.Id==0{
+		//没有注册过
+		info :=gin.H{
+			"uid":uInfo.Id,
+		}
+
+		utils.RES(c, utils.SUCCESS,  gin.H{
+			"info":  info,
+		})
+		return;
+	}
+
+	utils.RES(c, utils.SUCCESS,  gin.H{
+		"info":  uInfo,
+	})
+	return;
+}
+
 func MyInfo(c *gin.Context) {
 	type JSONData struct {
 		Uid int `form:"uid" binding:"required"`
