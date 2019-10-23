@@ -53,6 +53,7 @@ func parseItem(item Shop)gin.H{
 			"status":item.Status,
 			"status_name":status_name,
 			"type_name":type_name,
+			"create_uid":item.CreateUid,
 		}
 		return data;
 }
@@ -97,7 +98,7 @@ func QueryByWhereCount(where []string) int{
 	for _,w  := range where {
 		table=table.Where(w)
 	}
-	
+
 	var count int
 	table.Count(&count)
 	return count
