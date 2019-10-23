@@ -4,9 +4,9 @@ import (
 	"time"
 	"strings"
 	"strconv"
-	"github.com/Hanfu/database"
+	"Hanfu/database"
 	"github.com/gin-gonic/gin"
-	SHOP"github.com/Hanfu/common/shop"
+	SHOP"Hanfu/common/shop"
 )
 
 type Shop struct {

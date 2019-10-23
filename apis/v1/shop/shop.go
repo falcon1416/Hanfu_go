@@ -1,9 +1,9 @@
 package shop
 
 import (
-	"github.com/Hanfu/utils"
+	"Hanfu/utils"
 	"github.com/gin-gonic/gin"
-	DB"github.com/Hanfu/models/shop"
+	DB"Hanfu/models/shop"
 )
 
 func Query(c *gin.Context) {

@@ -2,7 +2,7 @@ package user
 
 import (
 	"time"
-	"github.com/Hanfu/database"
+	"Hanfu/database"
 )
 
 type User struct {

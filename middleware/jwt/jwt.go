@@ -3,7 +3,7 @@ package jwt
 import (
 	"errors"
 	"time"
-	"github.com/Hanfu/utils"
+	"Hanfu/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )

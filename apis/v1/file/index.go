@@ -3,7 +3,7 @@ package file
 import (
 	_"fmt"
 	"os"
-	"github.com/Hanfu/utils"
+	"Hanfu/utils"
 	"github.com/gin-gonic/gin"
 	"io"
 )

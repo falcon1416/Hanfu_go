@@ -4,10 +4,10 @@ import (
 	"os"
 	"net/http"
 	"fmt"
-	"github.com/Hanfu/routers/v1"
+	"Hanfu/routers/v1"
 	"github.com/gin-gonic/gin"
 
-	"github.com/Hanfu/middleware"
+	"Hanfu/middleware"
 )
 
 // initRouter 初始化路由

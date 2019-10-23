@@ -4,9 +4,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/Hanfu/conf"
-	"github.com/Hanfu/routers"
-	"github.com/Hanfu/database"
+	"Hanfu/conf"
+	"Hanfu/routers"
+	"Hanfu/database"
 )
 
 func main(){

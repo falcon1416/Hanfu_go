@@ -3,7 +3,7 @@ package qq
 import (
 	"fmt"
 	"encoding/json"
-	"github.com/Hanfu/utils"
+	"Hanfu/utils"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"

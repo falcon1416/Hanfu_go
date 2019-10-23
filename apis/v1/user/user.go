@@ -2,12 +2,12 @@ package user
 
 import (
 	"time"
-	"github.com/Hanfu/utils"
+	"Hanfu/utils"
 	"github.com/gin-gonic/gin"
-	DB"github.com/Hanfu/models/user"
-	ShopDB"github.com/Hanfu/models/shop"
+	DB"Hanfu/models/user"
+	ShopDB"Hanfu/models/shop"
 
-	myjwt "github.com/Hanfu/middleware/jwt"
+	myjwt "Hanfu/middleware/jwt"
 	jwtgo "github.com/dgrijalva/jwt-go"
 )
 

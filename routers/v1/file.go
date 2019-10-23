@@ -2,7 +2,7 @@ package v1
 
 import (
 	_"fmt"
-	"github.com/Hanfu/apis/v1/file"
+	"Hanfu/apis/v1/file"
 	"github.com/gin-gonic/gin"
 )
 
