@@ -59,7 +59,7 @@ func parseItem(item Shop)gin.H{
 }
 
 func parseList(list []Shop)[]gin.H{
-	var out_list []gin.H
+	var out_list =make([]gin.H,0)
 	for _,item  := range list {
 		data:=parseItem(item)
 		out_list = append(out_list, data)

@@ -50,6 +50,7 @@ func RES(c *gin.Context, code int, obj gin.H) {
 	if obj["message"] == "" || obj["message"] == nil {
 		obj["message"] = getMessage(code)
 	}
+	
 	obj["code"] = code
 	c.JSON(200, obj)
 }
