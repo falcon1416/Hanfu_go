@@ -19,7 +19,9 @@ type Shop struct {
 	Share string `json:"share"`
 	Intro string `json:"intro"`
 	Status int `json:"status",gorm:"default:0"`
+	FormId string `json:"form_id"`
 	IsTop int `json:"is_top",gorm:"default:0"`
+	AuditDesc string `json:"audit_desc",gorm:"default:''"`
 	CreateUid int `json:"create_uid",gorm:"default:0"`
 	CreateTime time.Time `json:"create_time"`
 }
@@ -44,6 +46,7 @@ func parseItem(item Shop)gin.H{
 
 		data:=gin.H{
 			"id":item.Id,
+			"form_id":item.FormId,
 			"name":item.Name,
 			"logo":item.Logo,
 			"intro":item.Intro,
@@ -110,7 +113,18 @@ func Detail(id int) gin.H{
 	return parseItem(s)
 }
 
+func QueryById(id int) Shop{
+	var s Shop
+	database.DB.Table("shop").Where("id = ?",id).First(&s)
+	return s
+}
+
 func Update(data Shop) error {
 	data.CreateTime=time.Now()
 	return database.DB.Save(data).Error
+}
+
+func UpdateStatus(id,status int ,desc string) error {
+	var s =Shop{Id:id}
+	return database.DB.Model(&s).Updates(Shop{Status: status, AuditDesc: desc}).Error
 }

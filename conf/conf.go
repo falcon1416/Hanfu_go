@@ -23,6 +23,13 @@ type DB struct{
 	DB_LOG string
 }
 
+//qq参数信息
+var QQConfig=&QQ{}
+type QQ struct{
+	APP_ID string
+	APP_SECRET string
+}
+
 var(
 	env= flag.String("env", "", "")
 )
@@ -58,4 +65,10 @@ func init(){
 	DBConfig.DB_NAME=dbname.String()
 	dblog,_:=Cfg.Section("mysql").GetKey("DB_LOG")
 	DBConfig.DB_LOG=dblog.String()
+
+	//qq
+	appid,_:=Cfg.Section("qq").GetKey("APP_ID")
+	QQConfig.APP_ID=appid.String()
+	appsecret,_:=Cfg.Section("qq").GetKey("APP_SECRET")
+	QQConfig.APP_SECRET=appsecret.String()
 }

@@ -1,11 +1,15 @@
 package shop
 
 import (
+	"fmt"
 	"Hanfu/utils"
 	"strconv"
+	"github.com/zyx4843/gojson"
 	"github.com/gin-gonic/gin"
 	DB"Hanfu/models/shop"
 	UserDB"Hanfu/models/user"
+	"Hanfu/conf"
+	"Hanfu/libs/http"
 )
 
 func Query(c *gin.Context) {
@@ -115,6 +119,7 @@ func Add(c *gin.Context) {
 		Share string `form:"share" binding:"required"`
 		Intro string `form:"intro" binding:"required"`
 		Uid int `form:"uid" binding:"required"`
+		Formid string `form:"formid" binding:"required"`
 	}
 	var data JSONData
 	if err := c.ShouldBind(&data); err != nil {
@@ -131,6 +136,7 @@ func Add(c *gin.Context) {
 		Type:data.Type,
 		Share:data.Share,
 		Intro:data.Intro,
+		FormId:data.Formid,
 		CreateUid:data.Uid,
 	}
 	err :=saveData.Save();
@@ -156,6 +162,7 @@ func Edit(c *gin.Context) {
 		Share string `form:"share" binding:"required"`
 		Intro string `form:"intro" binding:"required"`
 		Uid int `form:"uid" binding:"required"`
+		Formid string `form:"formid" binding:"required"`
 	}
 	var data JSONData
 	if err := c.ShouldBind(&data); err != nil {
@@ -173,6 +180,7 @@ func Edit(c *gin.Context) {
 		Type:data.Type,
 		Share:data.Share,
 		Intro:data.Intro,
+		FormId:data.Formid,
 		CreateUid:data.Uid,
 	}
 	err :=DB.Update(saveData);
@@ -191,13 +199,8 @@ func Edit(c *gin.Context) {
 func Audit(c *gin.Context) {
 	type JSONData struct {
 		Id int `form:"id" binding:"required"`
-		Logo string `form:"logo" binding:"required"`
-		Name string `form:"name" binding:"required"`
-		Tag string `form:"tag" binding:"required"`
-		Type string `form:"type" binding:"required"`
-		Share string `form:"share" binding:"required"`
-		Intro string `form:"intro" binding:"required"`
-		Uid int `form:"uid" binding:"required"`
+		Type int `form:"type" binding:"required"`
+		Desc string `form:"desc"`
 	}
 	var data JSONData
 	if err := c.ShouldBind(&data); err != nil {
@@ -207,37 +210,75 @@ func Audit(c *gin.Context) {
 		return
 	}
 
-	saveData :=DB.Shop{
-		Id:data.Id,
-		Name:data.Name,
-		Logo:data.Logo,
-		Tag:data.Tag,
-		Type:data.Type,
-		Share:data.Share,
-		Status:1,
-		Intro:data.Intro,
-		CreateUid:data.Uid,
+	if data.Desc==""{
+		if data.Type==1{
+			data.Desc="审核通过"
+		}else{
+			data.Desc="审核不通过"
+		}
 	}
-	err :=DB.Update(saveData);
-	if err != nil{
-		utils.RES(c, utils.ERROR_DATABASE_ADD, gin.H{})
-		return 
+
+	info:=DB.QueryById(data.Id)
+	formid:=info.FormId
+
+	//更新数据库
+	if err :=DB.UpdateStatus(data.Id,data.Type,data.Desc); err != nil {
+		utils.RES(c, utils.ERROR_DATABASE_ADD, gin.H{
+			"message": err.Error(),
+		})
+		return
 	}
 
 	//添加奖励
 	value:=30  //获取积分
 	extra:="{\"desc\":\"添加店铺成功\",\"type\":1,\"id\":\""+strconv.Itoa(data.Id)+"\"}"
 	pointsData :=UserDB.UserPoints{
-		Uid:data.Uid,
+		Uid:info.CreateUid,
 		Value:value,
 		Extra:extra,
 	}
 	_ =pointsData.Add();
+	message:="通过审核,对方将获得"+strconv.Itoa(value)+"积分"
+
+	if formid==""{
+		utils.RES(c, utils.SUCCESS,  gin.H{
+			"info":	gin.H{"message":message},
+		})
+		return
+	}
+
+	uInfo:=UserDB.QueryByUID(info.CreateUid)
+
+	//发送通知
+	//1.获取token
+	var url string
+	url="https://api.q.qq.com/api/getToken?grant_type=client_credential&appid="+conf.QQConfig.APP_ID+"&secret="+conf.QQConfig.APP_SECRET
+	body:=http.Get(url)
+	fmt.Println(body)
+	token:=gojson.Json(body).Get("access_token").Tostring()
+	//2.发送
+	url="https://api.q.qq.com/api/json/template/send?access_token="+token
+	postdata := make(map[string]interface{})
+	postdata["access_token"]=token
+	postdata["appid"]=conf.QQConfig.APP_ID
+	postdata["touser"]=uInfo.Openid
+	postdata["template_id"]="bef2a7c21b095174c054e9323af38386"
+	postdata["form_id"]=formid
+	//模板数据
+	tempdata := make(map[string]interface{})
+	tempdata["keyword1"]=gin.H{"value":"--"}
+	tempdata["keyword2"]=gin.H{"value":info.Name}
+	tempdata["keyword3"]=gin.H{"value":"--"}
+	tempdata["keyword4"]=gin.H{"value":data.Desc}
+
+	postdata["data"]=tempdata
+
+	postbody:=http.Post(url,postdata)
+	fmt.Println(postbody)
 
 	utils.RES(c, utils.SUCCESS,  gin.H{
-		"info":	gin.H{"message":"通过审核,对方将获得"+strconv.Itoa(value)+"积分"},
+		"info":	gin.H{"message":message},
 	})
-	return
 }
 
 func Detail(c *gin.Context) {
@@ -254,7 +295,6 @@ func Detail(c *gin.Context) {
 
 	info:=DB.Detail(data.Id)
 	
-
 	utils.RES(c, utils.SUCCESS,  gin.H{
 		"info":info,
 	})
