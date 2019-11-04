@@ -8,5 +8,6 @@ import (
 
 // 注册路由
 func RegisterActivityRouter(r *gin.RouterGroup) {
-	r.POST("/create-activity", activity.Create)
+	r.POST("/create", activity.Create)
+	r.POST("/query", activity.Query)
 }
