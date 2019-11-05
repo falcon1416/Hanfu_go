@@ -1,4 +1,4 @@
-package shop
+package activity
 
 import (
 	"time"
@@ -46,16 +46,30 @@ func (u *Activity) Save() error {
 	return database.DB.Create(u).Error
 }
 
+func Update(data Activity) error {
+	data.CreateTime=time.Now()
+	return database.DB.Save(data).Error
+}
+
 func Query(page,limit int) []gin.H{
 	var list []Activity
-	database.DB.Table("activity").Offset((page-1)*limit).Limit(limit).Find(&list)
+	today := time.Now().Format("2006-01-02")
+	database.DB.Table("activity").Where("start_time > ?", today).Order("start_time").Offset((page-1)*limit).Limit(limit).Find(&list)
 	return parseList(list)
 }
 
 func QueryCount() int{
 	var count int
-	database.DB.Table("activity").Count(&count)
+	today := time.Now().Format("2006-01-02")
+	database.DB.Table("activity").Where("start_time > ?", today).Count(&count)
 	return count
+}
+
+func Detail(id int)gin.H{
+	var d Activity
+	database.DB.Where("id = ?", id).First(&d)
+	data:=parseItem(d)
+	return data
 }
 
 
