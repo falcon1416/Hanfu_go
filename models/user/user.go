@@ -31,3 +31,9 @@ func (u *User) Save() error {
 	u.CreateTime=time.Now()
 	return database.DB.Create(u).Error
 }
+
+func QueryByIDs(ids []int) []User{
+	var list []User
+	database.DB.Table("user").Where("id in (?) ",ids).Find(&list)
+	return list
+}

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	
 	DB"Hanfu/models/activity"
+	UserDB"Hanfu/models/user"
 	"Hanfu/utils"
 )
 
@@ -131,11 +132,43 @@ func Detail(c *gin.Context) {
 		})
 		return
 	}
-
+	//详情
 	info:=DB.Detail(data.Id)
+
+	//报名情况
+	isJoin:=false
+	list:=DB.QueryJoinUser(data.Id)
+	var uids []int
+	for _,item  := range list {
+		if item.Uid==data.Uid{
+			isJoin=true
+		}
+		uids = append(uids, item.Uid)
+	}
+	var out_user_list []gin.H
+	user_list:=UserDB.QueryByIDs(uids)
+	for _,item  := range list {
+		for _,obj  := range user_list {
+			if item.Uid==obj.Id{
+				u:=gin.H{
+					"uid":item.Uid,
+					"name":obj.Name,
+					"avatar":obj.Avatar,
+					"time":item.CreateTime.Format("01-02 15:04"),
+				}
+				out_user_list = append(out_user_list, u)
+				break;
+			}
+			
+		}
+	}
+
+
 	utils.RES(c, utils.SUCCESS,  gin.H{
 		"info":gin.H{
 			"info":info,
+			"joins":out_user_list,
+			"isJoin":isJoin,
 		},
 	})
 	return

@@ -27,3 +27,9 @@ func QueryByActivityID(id int) []ActivityUser{
 	database.DB.Table("activity_user").Where("activity_id = ? ",id).Find(&list)
 	return list
 }
+
+func QueryJoinUser(id int) []ActivityUser{
+	var list []ActivityUser
+	database.DB.Table("activity_user").Where("activity_id = ? ",id).Order("create_time desc").Find(&list)
+	return list
+}
