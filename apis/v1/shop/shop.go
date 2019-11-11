@@ -258,7 +258,7 @@ func Audit(c *gin.Context) {
 	if Plantform=="qq"{
 		url="https://api.q.qq.com/api/getToken?grant_type=client_credential&appid="+conf.QQConfig.APP_ID+"&secret="+conf.QQConfig.APP_SECRET
 	}else{
-		url="https://api.weixin.qq.com/api/getToken?grant_type=client_credential&appid="+conf.WXConfig.APP_ID+"&secret="+conf.WXConfig.APP_SECRET
+		url="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+conf.WXConfig.APP_ID+"&secret="+conf.WXConfig.APP_SECRET
 	}
 	
 	body:=http.Get(url)
@@ -268,7 +268,7 @@ func Audit(c *gin.Context) {
 	if Plantform=="qq"{
 		url="https://api.q.qq.com/api/json/template/send?access_token="+token
 	}else{
-		url="https://api.weixin.qq.com/api/json/template/send?access_token="+token
+		url="https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token="+token
 	}
 	postdata := make(map[string]interface{})
 	postdata["access_token"]=token
