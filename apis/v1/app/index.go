@@ -11,7 +11,8 @@ import (
 
 func Code2Session(c *gin.Context) {
 	type JSONData struct {
-		Code string `form:"Code" binding:"required"`
+		Code string `form:"code" binding:"required"`
+		Version string `form:"version" binding:"required"`
 	}
 	var data JSONData
 	if err := c.ShouldBind(&data); err != nil {
@@ -25,8 +26,12 @@ func Code2Session(c *gin.Context) {
 	// fmt.Println(code)
 
 	//生成client 参数为默认
-	
-	url:="https://api.q.qq.com/sns/jscode2session?appid=1109969126&secret=EzlXC4le8DzHXJ6n&js_code="+code+"&grant_type=authorization_code"
+	var url=""
+	if data.Version =="qq"{
+		url="https://api.q.qq.com/sns/jscode2session?appid=1109969126&secret=EzlXC4le8DzHXJ6n&js_code="+code+"&grant_type=authorization_code"
+	}else{
+		url="https://api.weixin.qq.com/sns/jscode2session?appid=wx8204b7bcfe8f6549&secret=e0aaad5397954d8e2527a759bee0a41a&js_code=" + code + "&grant_type=authorization_code"
+	}
 	// fmt.Println(url)
 	resp, err := http.Get(url)
 	if err != nil {

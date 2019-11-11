@@ -8,6 +8,7 @@ import (
 type User struct {
 	Id int `json:"id",gorm:"primary_key;auto-increment"`
 	Name string `json:"name"`
+	Plantform string `json:"plantform"`
 	Avatar string `json:"avatar"`
 	Sex int `json:"sex"`
 	Openid string `json:"openid"`

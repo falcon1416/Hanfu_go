@@ -16,6 +16,7 @@ func Register(c *gin.Context) {
 	type JSONData struct {
 		Openid string `form:"openid" binding:"required"`
 		Name string `form:"name" binding:"required"`
+		Plantform string `form:"plantform" binding:"required"`
 		Avatar string `form:"avatar" binding:"required"`
 		Sex int `form:"sex" binding:"required"`
 	}
@@ -35,6 +36,7 @@ func Register(c *gin.Context) {
 		saveData :=DB.User{
 			Name:data.Name,
 			Avatar:data.Avatar,
+			Plantform:data.Plantform,
 			Sex:data.Sex,
 			Openid:data.Openid,
 		}
