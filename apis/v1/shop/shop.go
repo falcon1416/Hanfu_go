@@ -163,6 +163,7 @@ func Edit(c *gin.Context) {
 		Intro string `form:"intro" binding:"required"`
 		Uid int `form:"uid" binding:"required"`
 		Formid string `form:"formid" binding:"required"`
+		Plantform string `form:"plantform" binding:"required"`
 	}
 	var data JSONData
 	if err := c.ShouldBind(&data); err != nil {
@@ -181,6 +182,7 @@ func Edit(c *gin.Context) {
 		Share:data.Share,
 		Intro:data.Intro,
 		FormId:data.Formid,
+		Plantform:data.Plantform,
 		CreateUid:data.Uid,
 	}
 	err :=DB.Update(saveData);
@@ -220,6 +222,7 @@ func Audit(c *gin.Context) {
 
 	info:=DB.QueryById(data.Id)
 	formid:=info.FormId
+	Plantform:=info.Plantform
 
 	//更新数据库
 	if err :=DB.UpdateStatus(data.Id,data.Type,data.Desc); err != nil {
@@ -252,24 +255,45 @@ func Audit(c *gin.Context) {
 	//发送通知
 	//1.获取token
 	var url string
-	url="https://api.q.qq.com/api/getToken?grant_type=client_credential&appid="+conf.QQConfig.APP_ID+"&secret="+conf.QQConfig.APP_SECRET
+	if Plantform=="qq"{
+		url="https://api.q.qq.com/api/getToken?grant_type=client_credential&appid="+conf.QQConfig.APP_ID+"&secret="+conf.QQConfig.APP_SECRET
+	}else{
+		url="https://api.weixin.qq.com/api/getToken?grant_type=client_credential&appid="+conf.WXConfig.APP_ID+"&secret="+conf.WXConfig.APP_SECRET
+	}
+	
 	body:=http.Get(url)
 	fmt.Println(body)
 	token:=gojson.Json(body).Get("access_token").Tostring()
 	//2.发送
-	url="https://api.q.qq.com/api/json/template/send?access_token="+token
+	if Plantform=="qq"{
+		url="https://api.q.qq.com/api/json/template/send?access_token="+token
+	}else{
+		url="https://api.weixin.qq.com/api/json/template/send?access_token="+token
+	}
 	postdata := make(map[string]interface{})
 	postdata["access_token"]=token
-	postdata["appid"]=conf.QQConfig.APP_ID
+	if Plantform=="qq"{
+		postdata["appid"]=conf.QQConfig.APP_ID
+	}else{
+		postdata["appid"]=conf.WXConfig.APP_ID
+	}
 	postdata["touser"]=uInfo.Openid
-	postdata["template_id"]="bef2a7c21b095174c054e9323af38386"
+	if Plantform=="qq"{
+		postdata["template_id"]="bef2a7c21b095174c054e9323af38386"
+	}else{
+		postdata["template_id"]="zJSZv0sQ0Kdcs42nAbcsqZ9YILSwAvS9sdDvsBrC0hk"
+	}
 	postdata["form_id"]=formid
 	//模板数据
 	tempdata := make(map[string]interface{})
-	tempdata["keyword1"]=gin.H{"value":"--"}
-	tempdata["keyword2"]=gin.H{"value":info.Name}
-	tempdata["keyword3"]=gin.H{"value":"--"}
-	tempdata["keyword4"]=gin.H{"value":data.Desc}
+
+	tempdata["keyword1"]=gin.H{"value":info.Name}
+	if data.Type==1{
+		tempdata["keyword2"]=gin.H{"value":"通过"}
+	}else{
+		tempdata["keyword2"]=gin.H{"value":"不通过"}
+	}
+	tempdata["keyword3"]=gin.H{"value":data.Desc}
 
 	postdata["data"]=tempdata
 

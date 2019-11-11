@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"Hanfu/utils"
+	"Hanfu/conf"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
@@ -28,9 +29,9 @@ func Code2Session(c *gin.Context) {
 	//生成client 参数为默认
 	var url=""
 	if data.Version =="qq"{
-		url="https://api.q.qq.com/sns/jscode2session?appid=1109969126&secret=EzlXC4le8DzHXJ6n&js_code="+code+"&grant_type=authorization_code"
+		url="https://api.q.qq.com/sns/jscode2session?appid="+conf.QQConfig.APP_ID+"&secret="+conf.QQConfig.APP_SECRET+"&js_code="+code+"&grant_type=authorization_code"
 	}else{
-		url="https://api.weixin.qq.com/sns/jscode2session?appid=wx8204b7bcfe8f6549&secret=e0aaad5397954d8e2527a759bee0a41a&js_code=" + code + "&grant_type=authorization_code"
+		url="https://api.weixin.qq.com/sns/jscode2session?appid="+conf.WXConfig.APP_ID+"&secret="+conf.WXConfig.APP_SECRET+"&js_code=" + code + "&grant_type=authorization_code"
 	}
 	// fmt.Println(url)
 	resp, err := http.Get(url)

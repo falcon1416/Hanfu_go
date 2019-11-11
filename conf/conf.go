@@ -25,6 +25,8 @@ type DB struct{
 
 //qq参数信息
 var QQConfig=&QQ{}
+//微信参数信息
+var WXConfig=&QQ{}
 type QQ struct{
 	APP_ID string
 	APP_SECRET string
@@ -71,4 +73,10 @@ func init(){
 	QQConfig.APP_ID=appid.String()
 	appsecret,_:=Cfg.Section("qq").GetKey("APP_SECRET")
 	QQConfig.APP_SECRET=appsecret.String()
+
+	//wx
+	wappid,_:=Cfg.Section("wx").GetKey("APP_ID")
+	WXConfig.APP_ID=wappid.String()
+	wappsecret,_:=Cfg.Section("wx").GetKey("APP_SECRET")
+	WXConfig.APP_SECRET=wappsecret.String()
 }

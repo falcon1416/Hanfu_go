@@ -20,6 +20,7 @@ type Shop struct {
 	Intro string `json:"intro"`
 	Status int `json:"status",gorm:"default:0"`
 	FormId string `json:"form_id"`
+	Plantform string `json:"plantform"`
 	IsTop int `json:"is_top",gorm:"default:0"`
 	AuditDesc string `json:"audit_desc",gorm:"default:''"`
 	CreateUid int `json:"create_uid",gorm:"default:0"`
